@@ -86,7 +86,25 @@ class AuthScreens {
       await user?.reload();
       if (user != null && user.emailVerified) {
         emailCheckTimer?.cancel();
-        Navigator.pushReplacementNamed(context, Constants.homeRoute);
+
+        // Récupérez le rôle de l'utilisateur à partir de Firestore
+        final userDoc = await FirebaseFirestore.instance
+            .collection(Constants.usersCollection)
+            .doc(user.uid)
+            .get();
+
+        if (userDoc.exists) {
+          String userType = userDoc['typeUtilisateur'] ?? '';
+
+          // Redirection en fonction du rôle de l'utilisateur
+          if (userType == 'conducteur') {
+            Navigator.pushReplacementNamed(
+                context, Constants.homeRoute); // Home screen for driver
+          } else if (userType == 'passager') {
+            Navigator.pushReplacementNamed(
+                context, Constants.homePRoute); // Home screen for passenger
+          }
+        }
       }
     }
 

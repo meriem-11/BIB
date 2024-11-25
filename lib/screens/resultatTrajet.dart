@@ -1,4 +1,5 @@
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -12,7 +13,7 @@ Future<List<Map<String, dynamic>>> fetchRides(
         .get();
 
     return querySnapshot.docs
-        .map((doc) => doc.data() as Map<String, dynamic>)
+        .map((doc) => doc.data())
         .toList();
   } catch (e) {
     print("Erreur lors de la récupération des trajets : $e");
@@ -37,7 +38,7 @@ class RideResultsPage extends StatelessWidget {
         title: const Text("Résultats de la recherche"),
         backgroundColor: const Color.fromARGB(255, 12, 17, 51),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>(
+      body: FutureBuilder<List<Map<String, dynamic>>>( 
         future: fetchRides(departure, destination),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -63,7 +64,7 @@ class RideResultsPage extends StatelessWidget {
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
                 ),
-                elevation: 5, // Ajout d'une ombre pour un effet de profondeur
+                elevation: 5,
                 child: Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Column(
@@ -103,7 +104,7 @@ class RideResultsPage extends StatelessWidget {
                       const SizedBox(height: 10),
                       Row(
                         children: [
-                          Icon(Icons.attach_money,
+                          const Icon(Icons.attach_money,
                               color: Colors.green, size: 18),
                           const SizedBox(width: 6),
                           Text(
@@ -186,10 +187,17 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
     final idPassager = user?.uid;
 
     if (idPassager == null) {
-      print(
-          "Utilisateur non authentifié. Impossible d'enregistrer la réservation.");
+      print("Utilisateur non authentifié. Impossible d'enregistrer la réservation.");
       return;
     }
+
+    // Récupérer le token FCM du passager
+  String? passengerToken = await FirebaseMessaging.instance.getToken();
+
+  if (passengerToken == null) {
+    print("Erreur : Impossible de récupérer le token FCM du passager.");
+    return;
+  }
 
     // Récupérer l'ID du conducteur depuis 'userId' dans la collection 'annonces'
     final idConducteur = widget.ride['userId'];
@@ -229,6 +237,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
         'idpassager': idPassager, // ID du passager
         'idconducteur': idConducteur, // ID du conducteur
         'fcmtoken': fcmToken, // FCM token du conducteur
+        'passengerToken': passengerToken, // FCM token du passager
       });
 
       print("Réservation enregistrée avec succès !");
@@ -285,14 +294,8 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
                     });
                   },
                   color: selectedSeats > 1
-                      ? Colors.black
-                      : Colors.grey, // Change la couleur si désactivé
-                ),
-                // Affiche le nombre de places sélectionnées
-                Text(
-                  "$selectedSeats",
-                  style: const TextStyle(
-                      fontSize: 18, fontWeight: FontWeight.bold),
+                      ? Colors.blue
+                      : Colors.grey,
                 ),
                 // Bouton d'augmentation
                 IconButton(
@@ -305,33 +308,14 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
                     });
                   },
                   color: selectedSeats < availableSeats
-                      ? Colors.black
-                      : Colors.grey, // Change la couleur si désactivé
+                      ? Colors.blue
+                      : Colors.grey,
                 ),
               ],
             ),
             const SizedBox(height: 30),
             ElevatedButton(
-              onPressed: () async {
-                await saveReservation();
-                showDialog(
-                  context: context,
-                  builder: (context) => AlertDialog(
-                    title: const Text("Confirmation"),
-                    content: Text(
-                        "Vous avez réservé $selectedSeats places pour ce trajet."),
-                    actions: <Widget>[
-                      TextButton(
-                        onPressed: () {
-                          Navigator.pop(context);
-                          Navigator.pop(context); // Retour à la page précédente
-                        },
-                        child: const Text("OK"),
-                      ),
-                    ],
-                  ),
-                );
-              },
+              onPressed: saveReservation,
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color.fromARGB(255, 12, 17, 51),
               ),

@@ -22,11 +22,6 @@ class _DateDepartScreenState extends State<DateDepartScreen> {
   int _selectedIndex = -1;
 
   Future<void> _saveDateAndMoveToNextStep() async {
-    if (_selectedDate == null) {
-      debugPrint('Veuillez sélectionner une date.');
-      return;
-    }
-
     try {
       await FirebaseFirestore.instance
           .collection('annonces')

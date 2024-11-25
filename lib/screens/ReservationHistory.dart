@@ -1,9 +1,21 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/widgets.dart';
 
 class ReservationHistoryPage extends StatelessWidget {
   const ReservationHistoryPage({super.key});
+
+  Future<void> updateReservationStatus(
+      String reservationId, String status) async {
+    try {
+      await FirebaseFirestore.instance
+          .collection('reservations')
+          .doc(reservationId)
+          .update({'etat': status});
+      print("Mise à jour de l'état de la réservation réussie.");
+    } catch (e) {
+      print("Erreur lors de la mise à jour de l'état de la réservation : $e");
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +48,7 @@ class ReservationHistoryPage extends StatelessWidget {
               final prix = reservation['prix'];
               final placesReservees = reservation['places_reservees'];
               final etat = reservation['etat'];
+              final reservationId = reservation.id;
 
               return Card(
                 margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
@@ -84,6 +97,34 @@ class ReservationHistoryPage extends StatelessWidget {
                                   : Colors.red,
                         ),
                       ),
+                      const SizedBox(height: 12),
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.end,
+                        children: [
+                          if (etat != "accepté")
+                            TextButton(
+                              onPressed: () {
+                                updateReservationStatus(
+                                    reservationId, "accepté");
+                              },
+                              child: const Text(
+                                "Accepter",
+                                style: TextStyle(color: Colors.green),
+                              ),
+                            ),
+                          if (etat != "annulé")
+                            TextButton(
+                              onPressed: () {
+                                updateReservationStatus(
+                                    reservationId, "annulé");
+                              },
+                              child: const Text(
+                                "Annuler",
+                                style: TextStyle(color: Colors.red),
+                              ),
+                            ),
+                        ],
+                      ),
                     ],
                   ),
                 ),
@@ -93,17 +134,5 @@ class ReservationHistoryPage extends StatelessWidget {
         },
       ),
     );
-  }
-}
-
-Future<void> updateReservationStatus(
-    String reservationId, String newStatus) async {
-  try {
-    await FirebaseFirestore.instance
-        .collection('reservations')
-        .doc(reservationId)
-        .update({'etat': newStatus});
-  } catch (e) {
-    print("Erreur lors de la mise à jour de l'état : $e");
   }
 }

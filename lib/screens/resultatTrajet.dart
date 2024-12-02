@@ -12,9 +12,7 @@ Future<List<Map<String, dynamic>>> fetchRides(
         .where('trajet.arrivalCity', isEqualTo: destination)
         .get();
 
-    return querySnapshot.docs
-        .map((doc) => doc.data())
-        .toList();
+    return querySnapshot.docs.map((doc) => doc.data()).toList();
   } catch (e) {
     print("Erreur lors de la récupération des trajets : $e");
     return [];
@@ -38,7 +36,7 @@ class RideResultsPage extends StatelessWidget {
         title: const Text("Résultats de la recherche"),
         backgroundColor: const Color.fromARGB(255, 12, 17, 51),
       ),
-      body: FutureBuilder<List<Map<String, dynamic>>>( 
+      body: FutureBuilder<List<Map<String, dynamic>>>(
         future: fetchRides(departure, destination),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
@@ -187,17 +185,18 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
     final idPassager = user?.uid;
 
     if (idPassager == null) {
-      print("Utilisateur non authentifié. Impossible d'enregistrer la réservation.");
+      print(
+          "Utilisateur non authentifié. Impossible d'enregistrer la réservation.");
       return;
     }
 
     // Récupérer le token FCM du passager
-  String? passengerToken = await FirebaseMessaging.instance.getToken();
+    String? passengerToken = await FirebaseMessaging.instance.getToken();
 
-  if (passengerToken == null) {
-    print("Erreur : Impossible de récupérer le token FCM du passager.");
-    return;
-  }
+    if (passengerToken == null) {
+      print("Erreur : Impossible de récupérer le token FCM du passager.");
+      return;
+    }
 
     // Récupérer l'ID du conducteur depuis 'userId' dans la collection 'annonces'
     final idConducteur = widget.ride['userId'];
@@ -238,12 +237,20 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
         'idconducteur': idConducteur, // ID du conducteur
         'fcmtoken': fcmToken, // FCM token du conducteur
         'passengerToken': passengerToken, // FCM token du passager
+        'timestamp': FieldValue.serverTimestamp(),
       });
 
       print("Réservation enregistrée avec succès !");
     } catch (e) {
       print("Erreur lors de l'enregistrement de la réservation : $e");
     }
+
+    await FirebaseFirestore.instance.collection('messages').add({
+      'senderId': idPassager,
+      'receiverId': idConducteur,
+      'message': 'Je viens de réserver votre annonce.',
+      'timestamp': FieldValue.serverTimestamp(),
+    });
   }
 
   @override
@@ -293,9 +300,7 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
                       }
                     });
                   },
-                  color: selectedSeats > 1
-                      ? Colors.blue
-                      : Colors.grey,
+                  color: selectedSeats > 1 ? Colors.blue : Colors.grey,
                 ),
                 // Bouton d'augmentation
                 IconButton(
@@ -325,5 +330,20 @@ class _SeatSelectionPageState extends State<SeatSelectionPage> {
         ),
       ),
     );
+  }
+
+  void listenToReservations(String idConducteur) {
+    FirebaseFirestore.instance
+        .collection('reservations')
+        .where('idconducteur', isEqualTo: idConducteur)
+        .snapshots()
+        .listen((querySnapshot) {
+      for (var docChange in querySnapshot.docChanges) {
+        if (docChange.type == DocumentChangeType.added) {
+          print('Nouvelle réservation : ${docChange.doc.data()}');
+          // Affiche une notification locale ou une alerte à l'écran
+        }
+      }
+    });
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:projet_covoiturage/screens/map_screen.dart';
 import 'package:projet_covoiturage/screens/annoncelist_screen.dart';
+import 'package:projet_covoiturage/screens/notification.dart';
 import 'package:projet_covoiturage/screens/vehicule_screen.dart';
 import 'package:projet_covoiturage/custom_navbar.dart';
 
@@ -14,12 +15,12 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
-  int notificationCount = 0; 
+  int notificationCount = 0;
 
   static final List<Widget> _screens = [
     Container(),
     const AnnonceListScreen(),
-    const Placeholder(),
+    DriverNotificationListener(),
     const Placeholder(),
     const Placeholder(),
   ];
@@ -80,11 +81,13 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       onPressed: () {
                         setState(() {
-                          notificationCount = 0; 
+                          notificationCount = 0;
                         });
                         Navigator.push(
                           context,
-                          MaterialPageRoute(builder: (context) => const AnnonceListScreen()),
+                          MaterialPageRoute(
+                              builder: (context) =>
+                                  DriverNotificationListener()),
                         );
                       },
                     ),
@@ -129,7 +132,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   onPressed: () {
                     Navigator.push(
                       context,
-                      MaterialPageRoute(builder: (context) => const MapScreen()),
+                      MaterialPageRoute(
+                          builder: (context) => const MapScreen()),
                     );
                   },
                   style: ElevatedButton.styleFrom(

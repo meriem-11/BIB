@@ -1,6 +1,8 @@
 import 'dart:ui';
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'package:projet_covoiturage/screens/ReservationHistoryPageDriver.dart';
 import 'package:projet_covoiturage/screens/home.dart';
 import 'package:projet_covoiturage/screens/annoncelist_screen.dart';
 
@@ -17,29 +19,96 @@ class _VehicleScreenState extends State<VehicleScreen> {
   final TextEditingController _typeController = TextEditingController();
   final TextEditingController _colorController = TextEditingController();
   final TextEditingController _brandController = TextEditingController();
-  final TextEditingController _customModelController = TextEditingController(); 
+  final TextEditingController _customModelController = TextEditingController();
   int _seats = 1;
   bool _isLoading = false;
-  bool _isCustomModel = false; 
+  bool _isCustomModel = false;
 
   List<String> vehicleModels = [
-    'Toyota Corolla', 'Honda Civic', 'Ford Focus', 'BMW X5', 'Audi A4', 'Autre' 
+    'Toyota Corolla',
+    'Honda Civic',
+    'Ford Focus',
+    'BMW X5',
+    'Audi A4',
+    'Autre'
   ];
 
   List<String> vehicleBrands = [
-    'Alfa Romeo', 'Audi', 'BMW', 'Citroën', 'DACIA', 'Fiat', 'Ford', 'Mercedes-Benz', 
-    'Nissan', 'Opel', 'Peugeot', 'Renault', 'SEAT', 'Toyota', 'Volkswagen',
-    'Abarth', 'Aiways', 'Alpine', 'Aston Martin', 'Bentley', 'BYD', 'Cadillac', 'Caterham', 
-    'Chevrolet', 'Chrysler', 'Corvette', 'Cupra', 'Daewoo', 'Daihatsu', 'Daimler', 'Dodge', 
-    'DS', 'Ferrari', 'Fisker', 'Honda', 'Hummer', 'Hyundai', 'Infiniti', 'Jaguar', 
-    'Jeep', 'KIA', 'Lada', 'Lamborghini', 'Lancia', 'Land Rover', 'Lexus', 'Lotus', 
-    'Lynk & Co', 'Mahindra', 'Maserati', 'Mazda', 'McLaren', 'MG', 'Mini', 'Mitsubishi', 
-    'Porsche', 'Proton', 'Rolls-Royce', 'Saab', 'Skoda', 'Smart MCC', 'Subaru', 
-    'Suzuki', 'Tesla', 'TVR', 'Venturi', 'Vinfast', 'Volvo'
+    'Alfa Romeo',
+    'Audi',
+    'BMW',
+    'Citroën',
+    'DACIA',
+    'Fiat',
+    'Ford',
+    'Mercedes-Benz',
+    'Nissan',
+    'Opel',
+    'Peugeot',
+    'Renault',
+    'SEAT',
+    'Toyota',
+    'Volkswagen',
+    'Abarth',
+    'Aiways',
+    'Alpine',
+    'Aston Martin',
+    'Bentley',
+    'BYD',
+    'Cadillac',
+    'Caterham',
+    'Chevrolet',
+    'Chrysler',
+    'Corvette',
+    'Cupra',
+    'Daewoo',
+    'Daihatsu',
+    'Daimler',
+    'Dodge',
+    'DS',
+    'Ferrari',
+    'Fisker',
+    'Honda',
+    'Hummer',
+    'Hyundai',
+    'Infiniti',
+    'Jaguar',
+    'Jeep',
+    'KIA',
+    'Lada',
+    'Lamborghini',
+    'Lancia',
+    'Land Rover',
+    'Lexus',
+    'Lotus',
+    'Lynk & Co',
+    'Mahindra',
+    'Maserati',
+    'Mazda',
+    'McLaren',
+    'MG',
+    'Mini',
+    'Mitsubishi',
+    'Porsche',
+    'Proton',
+    'Rolls-Royce',
+    'Saab',
+    'Skoda',
+    'Smart MCC',
+    'Subaru',
+    'Suzuki',
+    'Tesla',
+    'TVR',
+    'Venturi',
+    'Vinfast',
+    'Volvo'
   ];
 
   List<String> vehicleTypes = [
-    'Petite voiture', 'Voiture familiale', 'Grosse voiture', 'Voiture de luxe'
+    'Petite voiture',
+    'Voiture familiale',
+    'Grosse voiture',
+    'Voiture de luxe'
   ];
 
   Future<void> _addVehicleToFirestore() async {
@@ -48,7 +117,9 @@ class _VehicleScreenState extends State<VehicleScreen> {
         _isLoading = true;
       });
 
-      final model = _isCustomModel ? _customModelController.text.trim() : _modelController.text.trim();
+      final model = _isCustomModel
+          ? _customModelController.text.trim()
+          : _modelController.text.trim();
       final type = _typeController.text.trim();
       final color = _colorController.text.trim();
       final brand = _brandController.text.trim();
@@ -63,7 +134,9 @@ class _VehicleScreenState extends State<VehicleScreen> {
       };
 
       try {
-        await FirebaseFirestore.instance.collection('vehicles').add(vehiculeData);
+        await FirebaseFirestore.instance
+            .collection('vehicles')
+            .add(vehiculeData);
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text("Véhicule ajouté avec succès!")),
         );
@@ -87,7 +160,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
     }
   }
 
-  int _selectedIndex = -1;
+  int _selectedIndex = 3;
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -98,11 +171,21 @@ class _VehicleScreenState extends State<VehicleScreen> {
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
-    }
- if (index == 1) {
+    } else if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AnnonceListScreen()),
+      );
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const ReservationHistoryPageDriver()),
+      );
+    } else if (index == 3) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const VehicleScreen()),
       );
     }
   }
@@ -112,7 +195,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Ajouter un véhicule'),
-        backgroundColor: const Color.fromARGB(255, 242, 236, 244),
+        backgroundColor: const Color.fromARGB(255, 143, 193, 194),
         elevation: 5,
       ),
       body: Stack(
@@ -139,7 +222,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
                 children: [
                   _buildModelSelector(),
                   const SizedBox(height: 16),
-                  _buildTextField(_colorController, 'Couleur du véhicule', Icons.color_lens),
+                  _buildColorSelector(),
                   const SizedBox(height: 12),
                   _buildBrandSelector(),
                   const SizedBox(height: 12),
@@ -184,6 +267,85 @@ class _VehicleScreenState extends State<VehicleScreen> {
     );
   }
 
+  Widget _buildColorSelector() {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 5,
+      child: Padding(
+        padding: const EdgeInsets.all(12.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Couleur du véhicule',
+              style: TextStyle(fontSize: 16),
+            ),
+            const SizedBox(height: 10),
+            Row(
+              children: [
+                Expanded(
+                  child: TextFormField(
+                    controller: _colorController,
+                    decoration: InputDecoration(
+                      labelText: 'Nom de la couleur (ex: Rouge)',
+                      prefixIcon: const Icon(Icons.color_lens),
+                      border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10)),
+                      filled: true,
+                      fillColor: Colors.white.withOpacity(0.8),
+                      contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 16, vertical: 14),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.isEmpty) {
+                        return 'Ce champ est requis';
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(width: 10),
+                ElevatedButton(
+                  onPressed: () async {
+                    Color? selectedColor = await showDialog(
+                      context: context,
+                      builder: (context) => AlertDialog(
+                        title: const Text('Choisir une couleur'),
+                        content: SingleChildScrollView(
+                          child: BlockPicker(
+                            pickerColor: Colors.blue,
+                            onColorChanged: (color) {
+                              Navigator.of(context).pop(color);
+                            },
+                          ),
+                        ),
+                      ),
+                    );
+                    if (selectedColor != null) {
+                      setState(() {
+                        _colorController.text =
+                            '#${selectedColor.value.toRadixString(16).substring(2)}';
+                      });
+                    }
+                  },
+                  style: ElevatedButton.styleFrom(
+                    shape: const CircleBorder(),
+                    padding: const EdgeInsets.all(14),
+                    backgroundColor: const Color.fromARGB(255, 90, 164, 165),
+                  ),
+                  child: const Icon(
+                    Icons.palette,
+                    color: Colors.white,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
   Widget buildNavBarItem(IconData icon, int index) {
     return InkWell(
       onTap: () => _onItemTapped(index),
@@ -210,24 +372,28 @@ class _VehicleScreenState extends State<VehicleScreen> {
         child: Column(
           children: [
             DropdownButtonFormField<String>(
-              value: _modelController.text.isEmpty ? null : _modelController.text,
+              value:
+                  _modelController.text.isEmpty ? null : _modelController.text,
               onChanged: (value) {
                 setState(() {
                   _modelController.text = value ?? '';
-                  _isCustomModel = value == 'Autre'; 
+                  _isCustomModel = value == 'Autre';
                 });
               },
               items: vehicleModels
-                  .map((String model) => DropdownMenuItem(value: model, child: Text(model)))
+                  .map((String model) =>
+                      DropdownMenuItem(value: model, child: Text(model)))
                   .toList(),
               decoration: InputDecoration(
                 prefixIcon: const Icon(Icons.directions_car),
                 labelText: 'Sélectionner un modèle',
                 labelStyle: const TextStyle(fontSize: 16),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
+                border:
+                    OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
                 filled: true,
                 fillColor: Colors.white.withOpacity(0.8),
-                contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+                contentPadding:
+                    const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
               ),
               validator: (value) {
                 if (value == null || value.isEmpty) {
@@ -236,7 +402,7 @@ class _VehicleScreenState extends State<VehicleScreen> {
                 return null;
               },
             ),
-            if (_isCustomModel) 
+            if (_isCustomModel)
               TextFormField(
                 controller: _customModelController,
                 decoration: const InputDecoration(
@@ -271,7 +437,8 @@ class _VehicleScreenState extends State<VehicleScreen> {
             });
           },
           items: vehicleBrands
-              .map((String brand) => DropdownMenuItem(value: brand, child: Text(brand)))
+              .map((String brand) =>
+                  DropdownMenuItem(value: brand, child: Text(brand)))
               .toList(),
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.car_repair),
@@ -280,7 +447,8 @@ class _VehicleScreenState extends State<VehicleScreen> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             filled: true,
             fillColor: Colors.white.withOpacity(0.8),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
@@ -307,7 +475,8 @@ class _VehicleScreenState extends State<VehicleScreen> {
             });
           },
           items: vehicleTypes
-              .map((String type) => DropdownMenuItem(value: type, child: Text(type)))
+              .map((String type) =>
+                  DropdownMenuItem(value: type, child: Text(type)))
               .toList(),
           decoration: InputDecoration(
             prefixIcon: const Icon(Icons.car_rental),
@@ -316,7 +485,8 @@ class _VehicleScreenState extends State<VehicleScreen> {
             border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
             filled: true,
             fillColor: Colors.white.withOpacity(0.8),
-            contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+            contentPadding:
+                const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
           ),
           validator: (value) {
             if (value == null || value.isEmpty) {
@@ -376,7 +546,8 @@ class _VehicleScreenState extends State<VehicleScreen> {
     );
   }
 
-  Widget _buildTextField(TextEditingController controller, String label, IconData icon) {
+  Widget _buildTextField(
+      TextEditingController controller, String label, IconData icon) {
     return TextFormField(
       controller: controller,
       decoration: InputDecoration(
@@ -385,7 +556,8 @@ class _VehicleScreenState extends State<VehicleScreen> {
         border: OutlineInputBorder(borderRadius: BorderRadius.circular(10)),
         filled: true,
         fillColor: Colors.white.withOpacity(0.8),
-        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
       ),
       validator: (value) {
         if (value == null || value.isEmpty) {

@@ -103,7 +103,7 @@ class FinalAnnounceScreen extends StatelessWidget {
             return Scaffold(
               appBar: AppBar(
                 title: const Text('Annonce Finalisée'),
-                backgroundColor: const Color.fromARGB(255, 242, 236, 244),
+                backgroundColor: const Color.fromARGB(255, 143, 193, 194),
               ),
               body: Center(
                 child: Padding(

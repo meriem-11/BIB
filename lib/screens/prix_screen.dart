@@ -8,7 +8,7 @@ import 'package:projet_covoiturage/screens/annoncelist_screen.dart';
 import 'package:projet_covoiturage/screens/vehicule_screen.dart';
 
 class PrixScreen extends StatefulWidget {
- final String annonceId;
+  final String annonceId;
 
   const PrixScreen({super.key, required this.annonceId});
   @override
@@ -17,58 +17,60 @@ class PrixScreen extends StatefulWidget {
 
 class _PrixScreenState extends State<PrixScreen> {
   int _selectedIndex = 0;
-  final TextEditingController _priceController = TextEditingController(text: "0");
+  final TextEditingController _priceController =
+      TextEditingController(text: "0");
   String _displayedPrice = "0";
-  
-Future<void> _savePriceAndMoveToNextStep() async {
+
+  Future<void> _savePriceAndMoveToNextStep() async {
     final price = _priceController.text.trim();
     if (price.isEmpty) {
       debugPrint('Veuillez entrer un prix.');
       return;
     }
 
- try {
-    DocumentSnapshot annonceSnapshot = await FirebaseFirestore.instance
-        .collection('annonces')
-        .doc(widget.annonceId)
-        .get();
+    try {
+      DocumentSnapshot annonceSnapshot = await FirebaseFirestore.instance
+          .collection('annonces')
+          .doc(widget.annonceId)
+          .get();
 
-    if (!annonceSnapshot.exists) {
-      debugPrint('Annonce non trouvée.');
-      return;
+      if (!annonceSnapshot.exists) {
+        debugPrint('Annonce non trouvée.');
+        return;
+      }
+
+      final dateDepart = annonceSnapshot['date_depart']['selectedDate'];
+      final trajet = annonceSnapshot['trajet'];
+      await FirebaseFirestore.instance
+          .collection('annonces')
+          .doc(widget.annonceId)
+          .update({
+        'prix': {
+          'amount': price,
+          'currency': 'DNT',
+        },
+        'date_depart': {
+          'selectedDate': dateDepart,
+        },
+        'trajet': trajet,
+      });
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) =>
+              ChoixVehiculeScreen(annonceId: widget.annonceId),
+        ),
+      );
+    } catch (e) {
+      debugPrint('Erreur lors de l\'enregistrement du prix: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+            content: Text('Erreur lors de l\'enregistrement du prix.')),
+      );
     }
-
-    final dateDepart = annonceSnapshot['date_depart']['selectedDate'];
-    final trajet = annonceSnapshot['trajet'];
- await FirebaseFirestore.instance
-        .collection('annonces')
-        .doc(widget.annonceId)
-        .update({
-      'prix': {
-        'amount': price,
-        'currency': 'DNT',  
-      },
-      'date_depart': {
-        'selectedDate': dateDepart,
-      },
-      'trajet': trajet, 
-    });
-
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) => ChoixVehiculeScreen(annonceId: widget.annonceId),
-      ),
-    );
-  } catch (e) {
-    debugPrint('Erreur lors de l\'enregistrement du prix: $e');
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Erreur lors de l\'enregistrement du prix.')),
-    );
   }
-}
 
- 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -79,13 +81,14 @@ Future<void> _savePriceAndMoveToNextStep() async {
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
-    } if (index == 1) {
+    }
+    if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AnnonceListScreen()),
       );
     }
-     if (index == 3) {
+    if (index == 3) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const VehicleScreen()),
@@ -93,13 +96,11 @@ Future<void> _savePriceAndMoveToNextStep() async {
     }
   }
 
- 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: const Color.fromARGB(255, 242, 236, 244),
+        backgroundColor: const Color.fromARGB(255, 143, 193, 194),
         leading: IconButton(
           icon: const Icon(Icons.arrow_back),
           onPressed: () => Navigator.pop(context),
@@ -132,7 +133,10 @@ Future<void> _savePriceAndMoveToNextStep() async {
             const SizedBox(height: 20),
             Text(
               '$_displayedPrice DNT',
-              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Colors.teal),
+              style: const TextStyle(
+                  fontSize: 24,
+                  fontWeight: FontWeight.bold,
+                  color: Color.fromARGB(255, 0, 150, 136)),
             ),
           ],
         ),
@@ -150,7 +154,7 @@ Future<void> _savePriceAndMoveToNextStep() async {
         ),
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: _savePriceAndMoveToNextStep, 
+        onPressed: _savePriceAndMoveToNextStep,
         backgroundColor: const Color.fromARGB(255, 143, 193, 194),
         child: const Icon(Icons.arrow_forward),
       ),

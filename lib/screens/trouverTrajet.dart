@@ -34,9 +34,13 @@ class SearchRidePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Trouver un Trajet'),
-        backgroundColor:
-            const Color(0xFF0C1133), 
+        title: const Text(
+          'Trouver un Trajet',
+          style: TextStyle(
+            color: Colors.white,
+          ),
+        ),
+        backgroundColor: const Color(0xFF0C1133),
       ),
       body: Stack(
         children: [
@@ -44,8 +48,7 @@ class SearchRidePage extends StatelessWidget {
           Container(
             decoration: const BoxDecoration(
               image: DecorationImage(
-                image: AssetImage(
-                    'lib/assets/background.jpg'), 
+                image: AssetImage('lib/assets/background.jpg'),
                 fit: BoxFit.cover,
               ),
             ),

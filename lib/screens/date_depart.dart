@@ -40,7 +40,8 @@ class _DateDepartScreenState extends State<DateDepartScreen> {
     } catch (e) {
       debugPrint('Erreur lors de l\'enregistrement dans Firestore: $e');
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Erreur lors de l\'enregistrement du trajet.')),
+        const SnackBar(
+            content: Text('Erreur lors de l\'enregistrement du trajet.')),
       );
     }
   }
@@ -83,24 +84,25 @@ class _DateDepartScreenState extends State<DateDepartScreen> {
 
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.transparent,
+        backgroundColor: const Color.fromARGB(0, 172, 203, 60),
         title: const Text(
           'Date de départ',
           style: TextStyle(
             fontSize: 24,
             fontWeight: FontWeight.w600,
-            color: Colors.white,
+            color: Color.fromARGB(255, 7, 18, 70),
           ),
         ),
         elevation: 0,
-        iconTheme: const IconThemeData(color: Colors.white),
+        iconTheme: const IconThemeData(color: Color.fromARGB(255, 8, 26, 63)),
       ),
       body: Container(
         decoration: BoxDecoration(
           image: DecorationImage(
-            image: const AssetImage('lib/assets/v2.jpg'), 
+            image: const AssetImage('lib/assets/v2.jpg'),
             fit: BoxFit.cover,
-            colorFilter: ColorFilter.mode(Colors.black.withOpacity(0.5), BlendMode.darken), 
+            colorFilter: ColorFilter.mode(
+                Colors.black.withOpacity(0.5), BlendMode.darken),
           ),
         ),
         child: Padding(
@@ -122,10 +124,12 @@ class _DateDepartScreenState extends State<DateDepartScreen> {
               GestureDetector(
                 onTap: () => _selectDate(context),
                 child: Container(
-                  padding: const EdgeInsets.symmetric(vertical: 16.0, horizontal: 30.0),
+                  padding: const EdgeInsets.symmetric(
+                      vertical: 16.0, horizontal: 30.0),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12.0),
-                    border: Border.all(width: 2, color: const Color.fromARGB(255, 12, 17, 51)),
+                    border: Border.all(
+                        width: 2, color: const Color.fromARGB(255, 12, 17, 51)),
                     color: Colors.white.withOpacity(0.8),
                     boxShadow: const [
                       BoxShadow(
@@ -137,7 +141,10 @@ class _DateDepartScreenState extends State<DateDepartScreen> {
                   ),
                   child: Text(
                     formattedDate,
-                    style: const TextStyle(fontSize: 22, fontWeight: FontWeight.w500, color: Colors.black),
+                    style: const TextStyle(
+                        fontSize: 22,
+                        fontWeight: FontWeight.w500,
+                        color: Colors.black),
                   ),
                 ),
               ),
@@ -145,8 +152,10 @@ class _DateDepartScreenState extends State<DateDepartScreen> {
               ElevatedButton(
                 onPressed: _saveDateAndMoveToNextStep,
                 style: ElevatedButton.styleFrom(
-                  foregroundColor: Colors.white, backgroundColor: const Color.fromARGB(255, 12, 17, 51),
-                  padding: const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
+                  foregroundColor: const Color.fromARGB(255, 252, 252, 252),
+                  backgroundColor: const Color.fromARGB(255, 12, 17, 51),
+                  padding:
+                      const EdgeInsets.symmetric(vertical: 20, horizontal: 30),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(30),
                   ),
@@ -211,7 +220,9 @@ class _DateDepartScreenState extends State<DateDepartScreen> {
         children: [
           Icon(
             icon,
-            color: _selectedIndex == index ? const Color.fromARGB(255, 12, 17, 51) : const Color(0xFF757575),
+            color: _selectedIndex == index
+                ? const Color.fromARGB(255, 12, 17, 51)
+                : const Color(0xFF757575),
             size: 30,
           ),
         ],

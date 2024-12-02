@@ -1,17 +1,20 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:projet_covoiturage/screens/PassengerReservationPage.dart';
 import 'package:projet_covoiturage/screens/ReservationHistoryPageDriver.dart';
 import 'package:projet_covoiturage/screens/home.dart';
+import 'package:projet_covoiturage/screens/homeP.dart';
+import 'package:projet_covoiturage/screens/resultatTrajet.dart';
 import 'package:projet_covoiturage/screens/vehicule_screen.dart';
 
-class AnnonceListScreen extends StatefulWidget {
-  const AnnonceListScreen({super.key});
+class AnnonceListScreenP extends StatefulWidget {
+  const AnnonceListScreenP({super.key});
 
   @override
   _AnnonceListScreenState createState() => _AnnonceListScreenState();
 }
 
-class _AnnonceListScreenState extends State<AnnonceListScreen> {
+class _AnnonceListScreenState extends State<AnnonceListScreenP> {
   int _selectedIndex = 1;
 
   void _onItemTapped(int index) {
@@ -22,35 +25,20 @@ class _AnnonceListScreenState extends State<AnnonceListScreen> {
     if (index == 0) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const HomeScreen2()),
       );
     } else if (index == 1) {
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const AnnonceListScreen()),
+        MaterialPageRoute(builder: (context) => const AnnonceListScreenP()),
       );
     } else if (index == 2) {
       Navigator.push(
         context,
         MaterialPageRoute(
-            builder: (context) => const ReservationHistoryPageDriver()),
-      );
-    } else if (index == 3) {
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => const VehicleScreen()),
+            builder: (context) => const PassengerReservationsPage()),
       );
     }
-  }
-
-  Future<void> _deleteAnnonce(String annonceId) async {
-    await FirebaseFirestore.instance
-        .collection('annonces')
-        .doc(annonceId)
-        .delete();
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Annonce supprimée avec succès")),
-    );
   }
 
   @override
@@ -89,7 +77,7 @@ class _AnnonceListScreenState extends State<AnnonceListScreen> {
               final annonceId = annonce.id;
               final dateDepart =
                   annonce['date_depart']?['selectedDate'] ?? 'Inconnue';
-
+              final prix = annonce['prix'];
               final trajet = annonce['trajet'];
               final vehiculeDetails = annonce['vehicule_details'];
               String formattedDate = 'Inconnue';
@@ -103,14 +91,9 @@ class _AnnonceListScreenState extends State<AnnonceListScreen> {
                 }
               }
 
-              var priceValue = 'Inconnu';
-              final annonceData =
-                  annonce.data() as Map<String, dynamic>?; // Cast explicite
-              if (annonceData != null && annonceData.containsKey('prix')) {
-                final prix = annonceData['prix'];
-                priceValue = "${prix['amount']} ${prix['currency']}";
-              }
-
+              final prixAmount = prix != null
+                  ? "${prix['amount']} ${prix['currency']}"
+                  : 'Inconnu';
               final departureCity = trajet['departureCity'] ?? 'Inconnu';
               final arrivalCity = trajet['arrivalCity'] ?? 'Inconnu';
 
@@ -173,23 +156,27 @@ class _AnnonceListScreenState extends State<AnnonceListScreen> {
                               color: Color.fromARGB(255, 90, 164, 165)),
                           const SizedBox(width: 5),
                           Text(
-                            priceValue,
+                            prixAmount,
                             style: const TextStyle(fontSize: 16),
                           ),
                         ],
                       ),
                     ],
                   ),
-                  trailing: Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      IconButton(
-                        icon: const Icon(Icons.delete,
-                            color: Color.fromARGB(255, 90, 164, 165)),
-                        onPressed: () => _deleteAnnonce(annonceId),
+                  // Ajouter l'événement onTap pour rediriger vers SeatSelectionPage
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => SeatSelectionPage(
+                          annonceId: annonce.id, ride: {}
+                          , // Passez l'id de l'annonce à la page de sélection des sièges
+                        ),
                       ),
-                    ],
-                  ),
+                    );
+                  },
+                  trailing: const SizedBox(
+                      width: 0), // Supprime l'icône de suppression
                 ),
               );
             },

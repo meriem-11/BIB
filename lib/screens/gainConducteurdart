@@ -1,0 +1,95 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/material.dart';
+
+class DriverIncomeScreen extends StatefulWidget {
+  final String driverId;
+
+  const DriverIncomeScreen({Key? key, required this.driverId}) : super(key: key);
+
+  @override
+  _DriverIncomeScreenState createState() => _DriverIncomeScreenState();
+}
+
+class _DriverIncomeScreenState extends State<DriverIncomeScreen> {
+  late Future<List<Map<String, dynamic>>> _dailyGains;
+
+  @override
+  void initState() {
+    super.initState();
+    _dailyGains = _getDailyGains();
+  }
+
+  // Fonction pour récupérer les gains quotidiens du conducteur
+  Future<List<Map<String, dynamic>>> _getDailyGains() async {
+    try {
+      final snapshot = await FirebaseFirestore.instance
+          .collection('drivers_income')
+          .doc(widget.driverId)
+          .collection('daily_gains')
+          .get();
+
+      return snapshot.docs.map((doc) {
+        final data = doc.data();
+        return {
+          'date': doc.id,
+          'gain': data['gain'] ?? 0.0,
+        };
+      }).toList();
+    } catch (e) {
+      throw 'Erreur lors de la récupération des gains: $e';
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text('Gains du conducteur'),
+      ),
+      body: FutureBuilder<List<Map<String, dynamic>>>(
+        future: _dailyGains,
+        builder: (context, snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+            return Center(child: Text('Erreur: ${snapshot.error}'));
+          } else if (!snapshot.hasData || snapshot.data!.isEmpty) {
+            return const Center(child: Text('Aucun gain trouvé.'));
+          } else {
+            final gains = snapshot.data!;
+            return ListView.builder(
+              itemCount: gains.length,
+              itemBuilder: (context, index) {
+                final gainData = gains[index];
+                final date = gainData['date'];
+                final gain = gainData['gain'];
+
+                // Essayer de formater la date uniquement si elle est valide
+                String formattedDate;
+                try {
+                  DateTime dateTime = DateTime.parse(date);
+                  formattedDate = "${dateTime.day}/${dateTime.month}/${dateTime.year}";
+                } catch (e) {
+                  formattedDate = "Date invalide";
+                }
+
+                return Card(
+                  margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
+                  elevation: 6,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: ListTile(
+                    title: Text('Date: $formattedDate'),
+                    subtitle: Text('Gain: \$${gain.toStringAsFixed(2)}'),
+                    leading: const Icon(Icons.money, color: Colors.green),
+                  ),
+                );
+              },
+            );
+          }
+        },
+      ),
+    );
+  }
+}

@@ -1,10 +1,15 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:projet_covoiturage/screens/NotificationsListPage.dart';
+import 'package:projet_covoiturage/screens/ReservationHistoryPageDriver.dart';
+import 'package:projet_covoiturage/screens/gainConducteurdart';
 import 'package:projet_covoiturage/screens/map_screen.dart';
 import 'package:projet_covoiturage/screens/annoncelist_screen.dart';
-import 'package:projet_covoiturage/screens/notification.dart';
 import 'package:projet_covoiturage/screens/vehicule_screen.dart';
 import 'package:projet_covoiturage/custom_navbar.dart';
+import 'dart:async';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -16,26 +21,65 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   int _selectedIndex = 0;
   int notificationCount = 0;
+  StreamSubscription? _notificationSubscription;
 
   static final List<Widget> _screens = [
     Container(),
-    const AnnonceListScreen(),
-    DriverNotificationListener(),
+    const Placeholder(),
+    const Placeholder(),
     const Placeholder(),
     const Placeholder(),
   ];
+  @override
+  void initState() {
+    super.initState();
+    _listenToNotifications();
+  }
+
+  void _listenToNotifications() {
+    final currentDriverId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (currentDriverId != null) {
+      _notificationSubscription = FirebaseFirestore.instance
+          .collection('reservations')
+          .where('idconducteur', isEqualTo: currentDriverId)
+          .where('etat', isEqualTo: 'en attente')
+          .snapshots()
+          .listen((snapshot) {
+        setState(() {
+          notificationCount = snapshot.docs.length;
+        });
+      });
+    }
+  }
+
+  @override
+  void dispose() {
+    _notificationSubscription?.cancel();
+    super.dispose();
+  }
 
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
     });
-    if (index == 1) {
+    if (index == 0) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
+      );
+    } else if (index == 1) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const AnnonceListScreen()),
       );
-    }
-    if (index == 3) {
+    } else if (index == 2) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+            builder: (context) => const ReservationHistoryPageDriver()),
+      );
+    } else if (index == 3) {
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(builder: (context) => const VehicleScreen()),
@@ -56,15 +100,17 @@ class _HomeScreenState extends State<HomeScreen> {
               ),
             ),
           ),
-          _screens[_selectedIndex],
           Positioned(
             top: 0,
             left: 0,
             right: 0,
             child: AppBar(
+              automaticallyImplyLeading:
+                  false, // Désactiver le bouton de retour
+
               backgroundColor: const Color.fromARGB(255, 12, 17, 51),
               title: const Text(
-                'PIP',
+                'BIP BIP',
                 style: TextStyle(
                   color: Colors.white,
                   fontSize: 30,
@@ -86,8 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                              builder: (context) =>
-                                  DriverNotificationListener()),
+                              builder: (context) => NotificationsListPage()),
                         );
                       },
                     ),
@@ -118,6 +163,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                   ],
                 ),
+                /*  IconButton(
+                  icon: const Icon(
+                    Icons.attach_money, // Icône pour les gains (monnaie)
+                    color: Colors.white,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                          builder: (context) => const DriverIncomeScreen(
+                                driverId: 'driver_id',
+                              )), // Naviguer vers la page des gains
+                    );
+                  },
+                ),*/
               ],
             ),
           ),
